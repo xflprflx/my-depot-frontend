@@ -1,0 +1,23 @@
+<li>
+    <a pRipple pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-slidedown" leaveToClass="hidden"
+        leaveActiveClass="animate-slideup"
+        class="flex items-center cursor-pointer p-4 rounded-border text-surface-700 dark:text-surface-100 hover:bg-surface-100 dark:hover:bg-surface-700 duration-150 transition-colors p-ripple"
+        [ngClass]="getActiveClass(data().routeLink)"
+        [ngClass]="isChild() ? 'single-level-child': 'single-level-root'">
+
+        <i class="mr-2 sidenav-link-icon" [class]="data().icon"></i>
+        <span class="sidenav-link-text">{{ data().label}}</span>
+        <i class="pi pi-chevron-down ml-auto menu-collapse-icon"></i>
+    </a>
+
+    <ul class="list-none py-0 pl-4 pr-0 m-0 hidden overflow-y-hidden transition-all duration-[400ms] ease-in-out">
+        @for (item of data().items; track item.label) {
+        @if (!item.items || item.items.length === 0) {
+        <app-single-level-menu [data]="item" [isChild]="true"></app-single-level-menu>
+        }
+        @if (item.items && item.items.length > 0) {
+        <app-multi-level-menu [data]="item" [isChild]="true"></app-multi-level-menu>
+        }
+        }
+    </ul>
+</li>
