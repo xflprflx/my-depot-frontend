@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
+import { HeaderComponent } from './components/header/header.component';
 
 @Component({
   selector: 'app-layout',
-  imports: [SidenavComponent, RouterOutlet],
+  imports: [SidenavComponent, HeaderComponent, RouterOutlet],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })
