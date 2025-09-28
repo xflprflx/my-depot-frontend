@@ -51,11 +51,12 @@
 
     <ng-template #end>
         <div class="flex items-center gap-2">
-            @if (isLoggedIn()) {
-            <p-button label="Sair" severity="contrast" size="small" (onClick)="logout()" />
-            }
             <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
                 [style]="{ width: '32px', height: '32px' }" />
+            @if (isLoggedIn()) {
+            <p-button label="Sair" severity="danger" size="small" icon="pi pi-sign-out" iconPos="right"
+                (onClick)="logout()" />
+            }
         </div>
     </ng-template>
 </p-toolbar>

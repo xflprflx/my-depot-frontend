@@ -31,8 +31,9 @@ export class LoginComponent {
       validators: [Validators.required, Validators.email],
     }),
     password: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(10)],
+      validators: [Validators.required, Validators.minLength(6)],
     }),
+    remember: new FormControl(false,{})
   });
 
   onSubmit() {
@@ -42,6 +43,7 @@ export class LoginComponent {
     const payload: UserCredentials = {
       email: this.form.controls.email.value as string,
       password: this.form.controls.password.value as string,
+      remember: this.form.controls.remember.value as boolean,
     };
 
     this.loginFacadeService.login(payload).subscribe({
@@ -49,7 +51,7 @@ export class LoginComponent {
         this.router.navigate(['']);
       },
       error: (response: HttpErrorResponse) => {
-        if (response.status === 401) {
+        if (response.status === 400) {
           this.form.setErrors({
             wrongCredentials: true
           });

@@ -3,7 +3,7 @@ import { Toolbar } from 'primeng/toolbar';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-import { LoggedInUserStoreService } from '../../../auth/store/logged-in-user-store.service';
+import { LoggedInUserStoreService } from '../../../auth/stores/logged-in-user-store.service';
 import { LogoutFacadeService } from '../../../auth/facades/logout-facade.service';
 
 @Component({

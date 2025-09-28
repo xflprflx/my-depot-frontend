@@ -1,32 +1,44 @@
 import { inject, Injectable } from '@angular/core';
-import { pipe, tap, switchMap } from 'rxjs';
+import { pipe, tap, switchMap, filter } from 'rxjs';
 import { UserCredentials } from '../interfaces/user-credentials';
-import { LoggedInUserStoreService } from '../store/logged-in-user-store.service';
+import { LoggedInUserStoreService } from '../stores/logged-in-user-store.service';
 import { AuthService } from '../services/auth.service';
-import { AuthTokenStorageService } from '../services/auth-token-storage.service';
 import { AuthTokenResponse } from '../interfaces/auth-token-response';
+import { TokenStorageService } from '../services/token-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginFacadeService {
-    private readonly authService = inject(AuthService);
-  private readonly authTokenStorageService = inject(AuthTokenStorageService);
+  private readonly authService = inject(AuthService);
+  private readonly tokenStorageService = inject(TokenStorageService);
   private readonly loggedInUserStoreService = inject(LoggedInUserStoreService);
 
   login(userCredentials: UserCredentials) {
-    return this.authService.login(userCredentials).pipe(this.createUserSession());
+    return this.authService.login(userCredentials).pipe(this.createUserSession(userCredentials.remember));
   }
 
-  refreshToken(token: string) {
-    return this.authService.refreshToken(token).pipe(this.createUserSession());
+  refreshToken() {
+    return this.authService.refreshToken().pipe(
+      filter((res): res is AuthTokenResponse => res !== null), // remove o null
+      this.createUserSession() // agora só recebe AuthTokenResponse
+    );
   }
 
-  private createUserSession() {
+  private createUserSession(remember?: boolean) {
     return pipe(
-      tap((res: AuthTokenResponse) => this.authTokenStorageService.set(res.token)),
-      switchMap((res) => this.authService.getCurrentUser(res.token)),
-      tap((user) => this.loggedInUserStoreService.setUser(user))
+      tap((res: AuthTokenResponse) => {
+        if(remember !== undefined) {
+          this.tokenStorageService.set(res, remember)
+        } else {
+          this.tokenStorageService.setRefresh(res)
+        }
+
+      }),
+      switchMap((res) => this.authService.getCurrentUser()),
+      tap((user) => {
+        this.loggedInUserStoreService.setUser(user!)
+      })
     )
   }
 }

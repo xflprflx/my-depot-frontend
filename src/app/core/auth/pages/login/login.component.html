@@ -27,23 +27,26 @@
                 <p-message severity="error" size="small" variant="simple">Senha é obrigatória.</p-message>
                 }
                 @if (form.controls.password.hasError('minlength')) {
-                <p-message severity="error" size="small" variant="simple">O tamanho mínimo é {{form.controls.password.errors?.['minlength']?.requiredLength}}.</p-message>
+                <p-message severity="error" size="small" variant="simple">O tamanho mínimo é
+                    {{form.controls.password.errors?.['minlength']?.requiredLength}}.</p-message>
                 }
 
                 <!-- cadastro e reset de senha     -->
                 <!-- @if (form.controls.password.hasError('passwordStrength')) {
-                <p-message severity="error" size="small" variant="simple">A senha deve ter maiúscula, minúscula, número,
-                    caractere especial e mínimo de 8 caracteres.</p-message>
-                } -->
+                    <p-message severity="error" size="small" variant="simple">A senha deve ter maiúscula, minúscula, número,
+                        caractere especial e mínimo de 8 caracteres.</p-message>
+                        } -->
 
-
+                }
+                @if (form.hasError('wrongCredentials')) {
+                <p-message severity="error" size="small" variant="simple">Usuário ou senha está incorreto.</p-message>
                 }
             </div>
 
             <!-- remember + forgot -->
             <div class="flex items-center justify-between text-sm">
                 <div class="flex items-center gap-2">
-                    <p-checkbox binary="true" inputId="remember"></p-checkbox>
+                    <p-checkbox formControlName="remember" [binary]="true" inputId="remember"></p-checkbox>
                     <label for="remember">Manter-me conectado</label>
                 </div>
                 <a routerLink="/forgot" class="text-indigo-600 hover:underline">
