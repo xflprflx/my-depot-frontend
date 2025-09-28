@@ -1,0 +1,20 @@
+.single-level-root.active {
+  background-color: #fff;
+}
+
+.single-level-root.active .sidenav-link-icon,
+.single-level-root.active .sidenav-link-text {
+  color: #000;
+  font-size: medium;
+  font-weight: bold;
+}
+
+.single-level-child .sidenav-link-icon,
+.single-level-child .sidenav-link-text {
+  color: #8d8d8d;
+}
+
+.single-level-child.active .sidenav-link-icon,
+.single-level-child.active .sidenav-link-text {
+  color: #f3f3f3;
+}
