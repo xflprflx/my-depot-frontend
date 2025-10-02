@@ -5,13 +5,14 @@ import { TokenStorageService } from '../services/token-storage.service';
 
 export const setAuthTokenInterceptor: HttpInterceptorFn = (req, next) => {
 
+  //TODO incluir lógica para refreshtoken
+
   const loggedInUserStoreService = inject(LoggedInUserStoreService)
 
   if (!loggedInUserStoreService.isLoggedIn()) {
     return next(req);
   }
 
-  // const token = inject(AuthTokenStorageService);
   const token = inject(TokenStorageService);
 
   const newReq = req.clone({

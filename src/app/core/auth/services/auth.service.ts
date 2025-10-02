@@ -4,7 +4,6 @@ import { catchError, Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { User } from '../interfaces/user';
 import { AuthTokenResponse } from '../interfaces/auth-token-response';
-import { environment } from '../../../../environments/environment';
 import { TokenStorageService } from './token-storage.service';
 import { Router } from '@angular/router';
 
@@ -12,9 +11,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = '/api/oauth2/token';
-  private clientId = environment.clientId;
-  private clientSecret = environment.clientSecret;
+
+  private baseUrl = '/api/auth';
 
   private accessTokenKey = 'access_token';
   private refreshTokenKey = 'refresh_token';
@@ -26,21 +24,7 @@ export class AuthService {
 
 
   login(userCredentials: UserCredentials): Observable<AuthTokenResponse> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + btoa(`${this.clientId}:${this.clientSecret}`)
-    });
-
-    const body = new HttpParams()
-      .set('grant_type', 'password')
-      .set('username', userCredentials.email)
-      .set('password', userCredentials.password)
-
-    return this.http.post<AuthTokenResponse>(this.baseUrl, body.toString(), { headers })
-      .pipe(
-        tap(res => {
-        })
-      );
+    return this.http.post<AuthTokenResponse>(`${this.baseUrl}/login`, userCredentials);
   }
 
   refreshToken(): Observable<AuthTokenResponse | null> {
@@ -50,7 +34,6 @@ export class AuthService {
     };
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + btoa(`${this.clientId}:${this.clientSecret}`)
     });
 
     const body = new HttpParams()
@@ -69,7 +52,6 @@ export class AuthService {
         })
       );
   }
-
 
   getAccessToken(): string | null {
     return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
