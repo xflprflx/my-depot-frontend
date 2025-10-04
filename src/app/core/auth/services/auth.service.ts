@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { UserCredentials } from '../interfaces/user-credentials';
-import { catchError, Observable, of, takeUntil, tap } from 'rxjs';
+import { catchError, Observable, of, takeUntil, tap, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../interfaces/user';
 import { Router } from '@angular/router';
@@ -23,7 +23,7 @@ export class AuthService {
     return this.http.post<User>(`${this.baseUrl}/login`, userCredentials, { withCredentials: true })
       .pipe(
         tap(user => this.setUser(user)),
-        catchError(() => of(null))
+        catchError((error) => throwError(() => error))
       );
   }
 
