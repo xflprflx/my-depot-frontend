@@ -1,10 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { UserCredentials } from '../interfaces/user-credentials';
-import { catchError, Observable, of, tap } from 'rxjs';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { catchError, Observable, of, takeUntil, tap } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { User } from '../interfaces/user';
-import { AuthTokenResponse } from '../interfaces/auth-token-response';
-import { TokenStorageService } from './token-storage.service';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -12,82 +10,60 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
+
   private baseUrl = '/api/auth';
 
-  private accessTokenKey = 'access_token';
-  private refreshTokenKey = 'refresh_token';
-  private expiresAtKey = 'expires_in';
+  private readonly STORAGE_KEY = 'loggedInUser';
 
   private http = inject(HttpClient);
-  private tokenStorageService = inject(TokenStorageService);
   private router = inject(Router);
 
 
-  login(userCredentials: UserCredentials): Observable<AuthTokenResponse> {
-    return this.http.post<AuthTokenResponse>(`${this.baseUrl}/login`, userCredentials);
+  login(userCredentials: UserCredentials): Observable<User | null> {
+    return this.http.post<User>(`${this.baseUrl}/login`, userCredentials, { withCredentials: true })
+      .pipe(
+        tap(user => this.setUser(user)),
+        catchError(() => of(null))
+      );
   }
 
-  refreshToken(): Observable<AuthTokenResponse | null> {
-    const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
-    if (!refreshToken) {
-      return of(null);
-    };
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-    });
-
-    const body = new HttpParams()
-      .set('grant_type', 'refresh_token')
-      .set('refresh_token', refreshToken);
-    return this.http.post<any>(this.baseUrl, body.toString(), { headers })
+  refreshToken(): Observable<User | null> {
+    return this.http.post<User>(`${this.baseUrl}/refresh`, {}, { withCredentials: true })
       .pipe(
-        catchError((error: HttpErrorResponse) => {
-          if (error.status === 400 || error.status === 401) {
-            this.tokenStorageService.remove();
+        tap(user => this.setUser(user)),
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 400 || err.status === 401) {
+            this.logout();
             this.router.navigate(['/auth/login']);
-          } else {
-            console.error('Erro no refresh token', error);
           }
           return of(null);
         })
       );
   }
 
-  getAccessToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey) || sessionStorage.getItem(this.accessTokenKey);
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/logout`, {}).pipe(
+      tap(() => this.clearUser())
+    );
   }
 
-  getRefreshToken(): Observable<string | null> {
-    const refreshToken = localStorage.getItem(this.refreshTokenKey) || sessionStorage.getItem(this.refreshTokenKey);
-    return of(refreshToken);
+  getUser(): User | null {
+    const raw = sessionStorage.getItem(this.STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
   }
 
-  isTokenExpired(): boolean {
-    const expiresAt =
-      localStorage.getItem(this.expiresAtKey) || sessionStorage.getItem(this.expiresAtKey);
-    return expiresAt ? Date.now() > +expiresAt : true;
+  setUser(user: User): void {
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
   }
 
-  logout() {
-    //TODO comunicar backend quando necessário.
-    return of({})
+  clearUser(): void {
+    sessionStorage.removeItem(this.STORAGE_KEY);
   }
 
-  getCurrentUser(): Observable<User | null> {
-    const token = this.getAccessToken();
-    if (!token) return of(null);
 
-    try {
-      const payloadBase64 = token.split('.')[1];
-      const payloadJson = atob(payloadBase64);
-      const payload = JSON.parse(payloadJson);
-
-      return of({
-        email: payload.username // ou payload.email
-      });
-    } catch (e) {
-      console.error('Erro ao decodificar token', e);
-      return of(null);
-    }
+  teste() {
+    this.http.post<void>(`${this.baseUrl}/teste`, {})
+      .subscribe();
   }
 }

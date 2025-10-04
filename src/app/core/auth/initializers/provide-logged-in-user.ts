@@ -1,21 +1,18 @@
 import { inject, provideAppInitializer } from "@angular/core";
-import { of } from "rxjs";
 import { LoginFacadeService } from "../facades/login-facade.service";
-import { TokenStorageService } from "../services/token-storage.service";
+import { LoggedInUserStoreService } from "../stores/logged-in-user-store.service";
+import { of } from "rxjs";
+import { AuthService } from "../services/auth.service";
 
 export function provideLoggedInUser() {
-    return provideAppInitializer(() => {
-        
-        const tokenStorageService = inject(TokenStorageService);
-      
-        if (!tokenStorageService.has()) {
-            return of();
-        }
+  return provideAppInitializer(() => {
+    const authService = inject(AuthService);
+    
+    if(authService.getUser() === null || undefined) {
+      return of(null);
+    }
 
-
-        const loginFacadeService = inject(LoginFacadeService);
-
-        return loginFacadeService.refreshToken();
-    });
-
+    const loginFacadeService = inject(LoginFacadeService);
+    return loginFacadeService.refreshToken();
+  });
 }

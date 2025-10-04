@@ -19,7 +19,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class LoginComponent {
 
-  // authService = inject(AuthService);
   router = inject(Router);
   loginFacadeService = inject(LoginFacadeService);
 

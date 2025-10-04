@@ -1,7 +1,6 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { LoggedInUserStoreService } from '../stores/logged-in-user-store.service';
-import { TokenStorageService } from '../services/token-storage.service';
 
 export const setAuthTokenInterceptor: HttpInterceptorFn = (req, next) => {
 
@@ -13,13 +12,6 @@ export const setAuthTokenInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const token = inject(TokenStorageService);
+  return next(req.clone({ withCredentials: true }));
 
-  const newReq = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token.get()}`
-    }
-  });
-
-  return next(newReq);
 };

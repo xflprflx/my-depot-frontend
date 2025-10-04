@@ -1,1 +1,8 @@
 <p>dashboard works!</p>
+@if (log.hasAuthority("CATEGORIES_READ")) {
+<h1>Teste hasAuthority existente</h1>
+}
+@if (log.hasAuthority("NON_EXISTING_AUTHORITY")) {
+<h1>Teste hasAuthority NÃO existente</h1>
+}
+<p-button label="Sair" severity="danger" size="small" icon="pi pi-sign-out" iconPos="right" (onClick)="teste()" />

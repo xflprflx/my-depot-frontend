@@ -18,4 +18,8 @@ export class LoggedInUserStoreService {
   logout() {
     this.state.set(null);
   }
+
+  hasAuthority(authority: string): boolean {
+    return this.state()?.authorities.includes(authority) ?? false;
+  }
 }
